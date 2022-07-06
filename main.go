@@ -1,21 +1,27 @@
 package main
 
 import (
-    "context"
-    "database/sql"
-    "time"
-    
-    "github.com/heroiclabs/nakama-common/runtime"
+	"context"
+	"database/sql"
+	"time"
+
+	"github.com/heroiclabs/nakama-common/runtime"
 )
 
-func InitModule(ctx context.Context, logger runtime.Logger, db * sql.DB, nk runtime.NakamaModule, initializer runtime.Initializer) error {
-    initStart := time.Now()
+func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, initializer runtime.Initializer) error {
 
-    err := initializer.RegisterRpc("healthcheck", RpcHealthcheck)
+	initStart := time.Now()
 
-    if err != nil{
-        return err
-    }
-    logger.Info("Module loaded in %dms", time.Since(initStart).Milliseconds())
-    return nil
+	err := initializer.RegisterRpc("healthcheck", RpcHealthcheck)
+	if err != nil {
+		return err
+	}
+
+	err = initializer.RegisterRpc("chatentered", ChatEntered)
+	if err != nil {
+		return err
+	}
+
+	logger.Info("Module loaded in %dms", time.Since(initStart).Milliseconds())
+	return nil
 }
