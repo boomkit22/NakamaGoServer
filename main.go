@@ -17,7 +17,12 @@ func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 		return err
 	}
 
-	err = initializer.RegisterRpc("chatentered", ChatEntered)
+	err = initializer.RegisterRpc("Chat_Entered", ChatEntered)
+	if err != nil {
+		return err
+	}
+
+	err = initializer.RegisterRpc("Load_Recent_Chat", LoadRecentChat)
 	if err != nil {
 		return err
 	}

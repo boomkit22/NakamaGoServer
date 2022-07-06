@@ -10,37 +10,52 @@ import (
 )
 
 type UserChat struct {
-	UserId      string    `sql:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	UserId      string    `sql:"type:uuid;default:uuid_generate_v4()"`
 	Message     string    `json:"Message"`
 	UserName    string    `json:"UserName"`
 	CreatedTime time.Time `json:"CreatedTime"`
 }
 
-//testversion
-// func ChatEntered(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-// 	UserId := ctx.Value(runtime.RUNTIME_CTX_USER_ID).(string)
+type UserChatDto struct {
+	Message     string    `json:"Message"`
+	UserName    string    `json:"UserName"`
+	CreatedTime time.Time `json:"CreatedTime"`
+}
 
-// 	Message := "testMessage"
-// 	UserName := "TestUserName"
-// 	CreateTime := time.Now()
+func LoadRecentChat(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, playload string) (string, error) {
+	logger.Debug("RPC Called : LoadRecentChat")
+	select_query := "SELECT username,message,created_time FROM chat_test ORDER BY created_time DESC LIMIT 100"
+	userChat, queryErr := db.QueryContext(ctx, select_query)
 
-// 	UserChatData := UserChat{}
+	if queryErr != nil {
+		logger.Error("(LoadRecentChat) SELECT query error")
+	}
 
-// 	UserChatData.UserId = UserId
-// 	UserChatData.UserName = UserName
-// 	UserChatData.CreatedTime = CreateTime
-// 	UserChatData.Message = Message
+	var message string
+	var username string
+	var created_time time.Time
 
-// 	jsonData, err := json.Marshal(UserChatData)
+	var userChatDto []UserChatDto
 
-// 	if err != nil {
-// 		logger.Error("json Marshal (UserChatData) Error")
-// 	}
+	count := 0
+	for userChat.Next() {
+		err := userChat.Scan(&message, &username, &created_time)
+		if err != nil {
+			logger.Error("(LoadRecentChat) user.Next() Error")
+		}
+		userChatDto = append(userChatDto, UserChatDto{message, username, created_time})
+		count++
+	}
 
-// 	//todo db에 삽입하기
+	jsonData, marshalError := json.Marshal(userChatDto)
 
-// 	return string(jsonData), nil
-// }
+	if marshalError != nil {
+		logger.Error(("json.Marshal(userChatDto) Error"))
+	}
+
+	return string(jsonData), nil
+
+}
 
 func ChatEntered(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
 	UserId := ctx.Value(runtime.RUNTIME_CTX_USER_ID).(string)
@@ -53,7 +68,13 @@ func ChatEntered(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runt
 
 	Message := reqMap["Message"].(string)
 	UserName := reqMap["UserName"].(string)
+
+	loc, _ := time.LoadLocation("Asia/Seoul")
+
 	CreateTime := time.Now()
+	CreateTime = CreateTime.In(loc)
+
+	logger.Debug(CreateTime.String())
 
 	UserChatData := UserChat{}
 	UserChatData.UserId = UserId
