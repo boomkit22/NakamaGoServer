@@ -23,6 +23,7 @@ type UserChatDto struct {
 }
 
 func LoadRecentChat(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, playload string) (string, error) {
+
 	logger.Debug("RPC Called : LoadRecentChat")
 	select_query := "SELECT username,message,created_time FROM chat_test ORDER BY created_time DESC LIMIT 100"
 	userChat, queryErr := db.QueryContext(ctx, select_query)

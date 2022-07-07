@@ -27,6 +27,16 @@ func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 		return err
 	}
 
+	err = initializer.RegisterMatch("Init_Test_Match", InitTestMatch)
+	if err != nil {
+		return err
+	}
+
+	err = initializer.RegisterRpc("Match_Create", MatchCreate)
+	if err != nil {
+		return err
+	}
+
 	logger.Info("Module loaded in %dms", time.Since(initStart).Milliseconds())
 	return nil
 }
