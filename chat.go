@@ -17,8 +17,8 @@ type UserChat struct {
 }
 
 type UserChatDto struct {
-	Message     string    `json:"Message"`
 	UserName    string    `json:"UserName"`
+	Message     string    `json:"Message"`
 	CreatedTime time.Time `json:"CreatedTime"`
 }
 
@@ -40,11 +40,11 @@ func LoadRecentChat(ctx context.Context, logger runtime.Logger, db *sql.DB, nk r
 
 	count := 0
 	for userChat.Next() {
-		err := userChat.Scan(&message, &username, &created_time)
+		err := userChat.Scan(&username, &message, &created_time)
 		if err != nil {
 			logger.Error("(LoadRecentChat) user.Next() Error")
 		}
-		userChatDto = append(userChatDto, UserChatDto{message, username, created_time})
+		userChatDto = append(userChatDto, UserChatDto{username, message, created_time})
 		count++
 	}
 
@@ -56,6 +56,17 @@ func LoadRecentChat(ctx context.Context, logger runtime.Logger, db *sql.DB, nk r
 
 	return string(jsonData), nil
 
+}
+
+func ChatDelete(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
+	delete_query := "DELETE FROM chat_test"
+	_, queryErr := db.QueryContext(ctx, delete_query)
+
+	if queryErr != nil {
+		logger.Error("(LoadRecentChat) SELECT query error")
+	}
+
+	return string("test"), nil
 }
 
 func ChatEntered(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {

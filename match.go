@@ -77,12 +77,12 @@ func (m *Test_Match) MatchLeave(ctx context.Context, logger runtime.Logger, db *
 func (m *Test_Match) MatchLoop(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, dispatcher runtime.MatchDispatcher, tick int64, state interface{}, messages []runtime.MatchData) interface{} {
 	mState, _ := state.(*MatchState)
 
-	for _, presence := range mState.presences {
-		logger.Info("Presence %v named %v", presence.GetUserId(), presence.GetUsername())
-	}
+	// for _, presence := range mState.presences {
+	// 	logger.Info("Presence %v named %v", presence.GetUserId(), presence.GetUsername())
+	// }
 
 	for _, message := range messages {
-		logger.Info("Received %v from %v", string(message.GetData()), message.GetUserId())
+		// logger.Info("Received %v from %v", string(message.GetData()), message.GetUserId())
 		dispatcher.BroadcastMessage(message.GetOpCode(), message.GetData(), nil, nil, true)
 		// dispatcher.BroadcastMessage(message.GetOpCode(), message.GetData(), mState.presences, message., true)
 	}

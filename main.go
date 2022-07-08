@@ -12,12 +12,17 @@ func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 
 	initStart := time.Now()
 
-	err := initializer.RegisterRpc("healthcheck", RpcHealthcheck)
+	// err := initializer.RegisterRpc("healthcheck", RpcHealthcheck)
+	// if err != nil {
+	// 	return err
+	// }
+
+	err := initializer.RegisterRpc("Chat_Entered", ChatEntered)
 	if err != nil {
 		return err
 	}
 
-	err = initializer.RegisterRpc("Chat_Entered", ChatEntered)
+	err = initializer.RegisterRpc("Chat_Deleted", ChatDelete)
 	if err != nil {
 		return err
 	}
