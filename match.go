@@ -55,6 +55,7 @@ func GetMatchList(ctx context.Context, logger runtime.Logger, db *sql.DB, nk run
 		logger.Error(("json.Marshal(userChatDto) Error"))
 	}
 
+	logger.Debug("GetMatchList Finish")
 	return string(jsonData), err
 }
 
@@ -68,6 +69,7 @@ func MatchCreate(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runt
 		logger.Debug("Create Match Error")
 	}
 
+	logger.Debug("Create match Finish")
 	return matchId, nil
 }
 

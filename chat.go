@@ -76,6 +76,7 @@ func ChatDelete(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 func ChatEntered(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
 	UserId := ctx.Value(runtime.RUNTIME_CTX_USER_ID).(string)
 
+	//todo matchID 추가
 	var reqMap map[string]interface{}
 	jsonErr := json.Unmarshal([]byte(payload), &reqMap)
 	if jsonErr != nil {
