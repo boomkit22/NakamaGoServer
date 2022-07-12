@@ -42,6 +42,16 @@ func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 		return err
 	}
 
+	err = initializer.RegisterRpc("Send_InGame_Noti", SendInGameNoti)
+	if err != nil {
+		return err
+	}
+
+	err = initializer.RegisterRpc("Get_Match_List", GetMatchList)
+	if err != nil {
+		return err
+	}
+
 	logger.Info("Module loaded in %dms", time.Since(initStart).Milliseconds())
 	return nil
 }

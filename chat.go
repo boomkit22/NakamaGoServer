@@ -22,7 +22,7 @@ type UserChatDto struct {
 	CreatedTime time.Time `json:"CreatedTime"`
 }
 
-func LoadRecentChat(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, playload string) (string, error) {
+func LoadRecentChat(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
 
 	logger.Debug("RPC Called : LoadRecentChat")
 	select_query := "SELECT username,message,created_time FROM chat_test ORDER BY created_time DESC LIMIT 100"
@@ -32,10 +32,14 @@ func LoadRecentChat(ctx context.Context, logger runtime.Logger, db *sql.DB, nk r
 		logger.Error("(LoadRecentChat) SELECT query error")
 	}
 
+	// 	If using db.QueryContext() or db.Query(), you must call row.Close() after you are finished with the database rows data.
+
+	// If using db.QueryRow() or db.QueryRowContext(), you must call either row.Scan or row.Close() after you are finished with the database rows data.
+	// row.Close()
+
 	var message string
 	var username string
 	var created_time time.Time
-
 	var userChatDto []UserChatDto
 
 	count := 0
@@ -63,7 +67,7 @@ func ChatDelete(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 	_, queryErr := db.QueryContext(ctx, delete_query)
 
 	if queryErr != nil {
-		logger.Error("(LoadRecentChat) SELECT query error")
+		logger.Error("(ChatDelete) DELETE query error")
 	}
 
 	return string("test"), nil

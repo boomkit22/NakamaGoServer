@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 
 	"github.com/heroiclabs/nakama-common/runtime"
 )
@@ -12,6 +13,49 @@ type Test_Match struct {
 
 type MatchState struct {
 	presences map[string]runtime.Presence
+}
+
+type MatchInfoList struct {
+	MatchInfoList []MatchInfo `json:"MatchInfoList"` // 슬라이스 변수 vector 같은거 가변길이
+}
+
+type MatchInfo struct {
+	MatchId   string `json:"MatchId"`
+	MatchIsze int    `json:"MatchSIze"`
+}
+
+// json:"UserName"`
+// 	Message     string    `json:"Message"`
+func GetMatchList(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
+	limit := 10
+	authoritative := true
+	label := ""
+	minSize := 0
+	maxSize := 10
+	query := "" //Additional query parameters to shortlist matches
+
+	matches, err := nk.MatchList(ctx, limit, authoritative, label, &minSize, &maxSize, query)
+
+	matchInfoList := MatchInfoList{}
+
+	if err != nil {
+		logger.WithField("err", err).Error("Match list error.")
+	} else {
+		for _, match := range matches {
+			logger.Info("Found match with id: %s", match.GetMatchId())
+			logger.Info("Found match size : %d", match.GetSize())
+			matchInfo := MatchInfo{match.GetMatchId(), int(match.GetSize())}
+			matchInfoList.MatchInfoList = append(matchInfoList.MatchInfoList, matchInfo)
+		}
+	}
+
+	jsonData, marshalError := json.Marshal(matchInfoList)
+
+	if marshalError != nil {
+		logger.Error(("json.Marshal(userChatDto) Error"))
+	}
+
+	return string(jsonData), err
 }
 
 func MatchCreate(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
@@ -97,8 +141,4 @@ func (m *Test_Match) MatchSignal(ctx context.Context, logger runtime.Logger, db 
 func (m *Test_Match) MatchTerminate(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, dispatcher runtime.MatchDispatcher, tick int64, state interface{}, graceSeconds int) interface{} {
 	// Custom code to process the termination of match.
 	return state
-}
-
-func InitMyRoom(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule) (runtime.Match, error) {
-	return &Test_Match{}, nil
 }
