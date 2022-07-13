@@ -21,8 +21,15 @@ type MatchInfoList struct {
 
 type MatchInfo struct {
 	MatchId   string `json:"MatchId"`
-	MatchIsze int    `json:"MatchSIze"`
+	MatchSize int    `json:"MatchSize"`
 }
+
+// type Match struct {
+// 	matchId   string
+// 	testMatch *Test_Match
+// }
+
+var _matchMap = map[string]*MatchState{}
 
 // json:"UserName"`
 // 	Message     string    `json:"Message"`
@@ -74,13 +81,32 @@ func MatchCreate(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runt
 }
 
 func InitTestMatch(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule) (runtime.Match, error) {
+	// matchId := ctx.Value(runtime.RUNTIME_CTX_MATCH_ID).(string)
+
+	// _matchMap[matchId] = &matchState
 	return &Test_Match{}, nil
+
+}
+
+//idea Test_Match 전용 함수들
+// match_Id에 해당하는 Test_Match를 찾아서 주면됨
+func GetMatchState(matchId string) *MatchState {
+	return _matchMap[matchId]
+}
+
+func GetPresences(matchState *MatchState) map[string]runtime.Presence {
+	return matchState.presences
 }
 
 func (m *Test_Match) MatchInit(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, params map[string]interface{}) (interface{}, int, string) {
 	state := &MatchState{
 		presences: make(map[string]runtime.Presence),
 	} // Define custom MatchState in the code as per your game's requirements
+	matchId := ctx.Value(runtime.RUNTIME_CTX_MATCH_ID).(string)
+	_matchMap[matchId] = state
+
+	// state.matchId = ctx.Value(runtime.RUNTIME_CTX_MATCH_ID).(string)
+
 	tickRate := 60 // Call MatchLoop() every 1s.
 	label := ""    // Custom label that will be used to filter match listings.
 
