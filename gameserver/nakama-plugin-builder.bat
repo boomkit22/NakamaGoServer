@@ -1,0 +1,1 @@
+powershell.exe -Command docker run --rm -w "/builder" -v "${PWD}:/builder" heroiclabs/nakama-pluginbuilder:3.12.0 build -buildmode=plugin -trimpath -o ./NurhymeCommon.so
